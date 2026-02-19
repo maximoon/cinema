@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🎬 Il Mio Cinema</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #18181f;
+    --border: rgba(255,255,255,0.07);
+    --gold: #c9a84c;
+    --gold2: #e8c96d;
+    --text: #e8e6e0;
+    --text-dim: #8a8880;
+    --red: #c0392b;
+    --card-w: 180px;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── HERO HEADER ─── */
+  header {
+    position: relative;
+    padding: 3rem 4rem 2rem;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, #0d0d15 0%, var(--bg) 100%);
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+  .header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .logo {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+  .logo span { color: var(--gold); }
+  .logo small {
+    display: block;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    font-weight: 400;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* ─── API KEY BANNER ─── */
+  #api-banner {
+    margin-top: 1.5rem;
+    padding: 1rem 1.5rem;
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.25);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+  #api-banner.hidden { display: none; }
+  #api-banner p { font-size: 0.85rem; color: var(--gold2); flex: 1; min-width: 200px; }
+  #api-banner p a { color: var(--gold); }
+  #api-banner input {
+    flex: 2; min-width: 260px;
+    background: rgba(0,0,0,0.4);
+    border: 1px solid rgba(201,168,76,0.3);
+    border-radius: 6px;
+    padding: 0.5rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+  }
+  #api-banner input:focus { outline: none; border-color: var(--gold); }
+  #api-banner button {
+    padding: 0.5rem 1.4rem;
+    background: var(--gold);
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+  }
+  #api-banner button:hover { background: var(--gold2); }
+
+  /* ─── TOOLBAR ─── */
+  .toolbar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+  }
+  .search-wrap {
+    position: relative;
+    flex: 1;
+    min-width: 220px;
+    max-width: 420px;
+  }
+  .search-wrap svg {
+    position: absolute;
+    left: 14px; top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+  #search {
+    width: 100%;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem 0.6rem 2.8rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    transition: border-color 0.2s;
+  }
+  #search:focus { outline: none; border-color: rgba(201,168,76,0.4); }
+  #search::placeholder { color: var(--text-dim); }
+
+  .filter-select {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.6rem 1rem;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem;
+    cursor: pointer;
+  }
+  .filter-select:focus { outline: none; border-color: rgba(201,168,76,0.4); }
+  .filter-select option { background: var(--bg2); }
+
+  .stats {
+    margin-left: auto;
+    font-size: 0.8rem;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .stats strong { color: var(--gold); }
+
+  /* ─── MAIN AREA ─── */
+  main { padding: 2.5rem 4rem 4rem; }
+
+  /* ─── SECTION HEADERS ─── */
+  .section-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    font-style: italic;
+    color: var(--text-dim);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ─── GRID ─── */
+  #grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(var(--card-w), 1fr));
+    gap: 1.5rem;
+  }
+
+  /* ─── CARD ─── */
+  .card {
+    cursor: pointer;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s;
+    animation: fadeIn 0.4s ease both;
+  }
+  .card:hover {
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+    border-color: rgba(201,168,76,0.3);
+  }
+  .card-poster {
+    width: 100%;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    display: block;
+    background: var(--bg3);
+  }
+  .card-poster.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    color: var(--text-dim);
+    background: linear-gradient(135deg, var(--bg3), #1a1a25);
+  }
+  .card-body {
+    padding: 0.7rem 0.8rem 0.8rem;
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    line-height: 1.3;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+  }
+  .card-year { }
+  .card-rating {
+    margin-left: auto;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+  .card-genre {
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-top: 0.3rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* ─── STATUS BADGE ─── */
+  .status-dot {
+    display: inline-block;
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: #666;
+    flex-shrink: 0;
+  }
+  .status-dot.ok { background: #2ecc71; }
+  .status-dot.pending { background: var(--gold); }
+  .status-dot.error { background: var(--red); }
+
+  /* ─── MODAL ─── */
+  #modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    backdrop-filter: blur(6px);
+  }
+  #modal-overlay.open { display: flex; }
+  #modal {
+    position: relative;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    max-width: 860px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalIn 0.3s ease;
+  }
+  #modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: rgba(255,255,255,0.08);
+    border: none;
+    color: var(--text);
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.2rem;
+    display: flex; align-items: center; justify-content: center;
+    z-index: 10;
+    transition: background 0.2s;
+  }
+  #modal-close:hover { background: rgba(255,255,255,0.15); }
+  .modal-backdrop {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    border-radius: 16px 16px 0 0;
+    display: block;
+  }
+  .modal-backdrop.placeholder {
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 5rem;
+  }
+  .modal-body {
+    display: grid;
+    grid-template-columns: 160px 1fr;
+    gap: 2rem;
+    padding: 2rem;
+  }
+  .modal-poster {
+    width: 160px;
+    border-radius: 10px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    margin-top: -60px;
+    position: relative;
+    z-index: 1;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+  }
+  .modal-poster.placeholder {
+    aspect-ratio: 2/3;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    border-radius: 10px;
+    margin-top: -60px;
+  }
+  .modal-info { min-width: 0; }
+  .modal-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.7rem;
+    font-weight: 900;
+    line-height: 1.2;
+    margin-bottom: 0.5rem;
+  }
+  .modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    align-items: center;
+  }
+  .badge {
+    padding: 0.2rem 0.7rem;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.07);
+    font-size: 0.75rem;
+    letter-spacing: 0.04em;
+  }
+  .badge.gold { background: rgba(201,168,76,0.15); color: var(--gold2); }
+  .rating-big {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  .modal-overview {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: rgba(232,230,224,0.8);
+    margin-bottom: 1.2rem;
+  }
+  .modal-crew {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    font-size: 0.85rem;
+  }
+  .crew-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 0.2rem;
+  }
+  .crew-value { color: var(--text); }
+
+  /* ─── LOADING / EMPTY ─── */
+  #loading {
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-dim);
+    font-size: 0.95rem;
+  }
+  #loading .spinner {
+    width: 40px; height: 40px;
+    border: 2px solid var(--border);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 1.5rem;
+  }
+  #empty {
+    display: none;
+    text-align: center;
+    padding: 5rem 2rem;
+    color: var(--text-dim);
+  }
+  #empty .icon { font-size: 3rem; margin-bottom: 1rem; }
+
+  /* ─── PROGRESS BAR ─── */
+  #fetch-progress {
+    display: none;
+    position: fixed;
+    bottom: 2rem; right: 2rem;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    min-width: 280px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    z-index: 500;
+  }
+  #fetch-progress.show { display: block; }
+  #fetch-progress p { font-size: 0.85rem; color: var(--text-dim); margin-bottom: 0.5rem; }
+  #fetch-progress .bar-track {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  #fetch-progress .bar-fill {
+    height: 100%;
+    background: var(--gold);
+    border-radius: 2px;
+    transition: width 0.3s;
+    width: 0%;
+  }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+  @keyframes modalIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 700px) {
+    header, main { padding-left: 1.5rem; padding-right: 1.5rem; }
+    .modal-body { grid-template-columns: 1fr; }
+    .modal-poster { margin-top: 0; width: 120px; }
+    .modal-crew { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="logo">
+      Il Mio<span>Cinema</span>
+      <small>La mia collezione personale</small>
+    </div>
+  </div>
+
+  <div id="api-banner">
+    <p>
+      🔑 Inserisci la tua <strong>API key TMDb</strong> per scaricare poster, trame e info automaticamente.<br>
+      <a href="https://www.themoviedb.org/settings/api" target="_blank">Ottienila gratis su themoviedb.org →</a>
+    </p>
+    <input type="password" id="api-key-input" placeholder="Incolla qui la tua API key TMDb...">
+    <button onclick="saveApiKey()">Salva &amp; Scarica Info</button>
+  </div>
+
+  <div class="toolbar">
+    <div class="search-wrap">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" id="search" placeholder="Cerca un film...">
+    </div>
+    <select class="filter-select" id="filter-genre">
+      <option value="">Tutti i generi</option>
+    </select>
+    <select class="filter-select" id="filter-year">
+      <option value="">Tutti gli anni</option>
+    </select>
+    <select class="filter-select" id="sort-by">
+      <option value="title">Ordine: A–Z</option>
+      <option value="year-desc">Anno: più recente</option>
+      <option value="year-asc">Anno: più vecchio</option>
+      <option value="rating">Valutazione</option>
+    </select>
+    <div class="stats" id="stats"></div>
+  </div>
+</header>
+
+<main>
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Caricamento catalogo...</p>
+  </div>
+  <div id="empty">
+    <div class="icon">🎬</div>
+    <p>Nessun film trovato.<br>Prova a modificare i filtri o esegui scan_movies.py.</p>
+  </div>
+  <div id="grid"></div>
+</main>
+
+<!-- MODAL -->
+<div id="modal-overlay" onclick="closeModal(event)">
+  <div id="modal">
+    <button id="modal-close" onclick="closeModal()">✕</button>
+    <div id="modal-content"></div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div id="fetch-progress">
+  <p id="fetch-text">Recupero informazioni: 0 / 0</p>
+  <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+</div>
+
+<script>
+const TMDB_BASE = 'https://api.themoviedb.org/3';
+const IMG_BASE  = 'https://image.tmdb.org/t/p/';
+
+let catalog = [];
+let filtered = [];
+let apiKey = localStorage.getItem('tmdb_api_key') || '';
+
+// ─── INIT ───────────────────────────────────────────
+async function init() {
+  if (apiKey) {
+    document.getElementById('api-banner').classList.add('hidden');
+    document.getElementById('api-key-input').value = apiKey;
+  }
+
+  try {
+    const res = await fetch('movies.json');
+    if (!res.ok) throw new Error('movies.json non trovato');
+    const data = await res.json();
+    catalog = data.movies || [];
+
+    // Se abbiamo la key e ci sono film senza info, scarica automaticamente
+    if (apiKey && catalog.some(m => m.status !== 'ok')) {
+      fetchAllMovieInfo();
+    }
+  } catch(e) {
+    // Carica demo se non c'è movies.json
+    catalog = getDemoMovies();
+  }
+
+  buildFilters();
+  render();
+  document.getElementById('loading').style.display = 'none';
+}
+
+// ─── DEMO DATA ───────────────────────────────────────
+function getDemoMovies() {
+  return [
+    { id:1, title:'Il Padrino', year:'1972', status:'demo', genres:['Crimine','Dramma'], rating:9.2, overview:'La saga della potente famiglia mafiosa Corleone, guidata dall\'anziano Don Vito e dal figlio Michael.', director:'Francis Ford Coppola', cast:['Marlon Brando','Al Pacino','James Caan'], runtime:175, poster:null, backdrop:null },
+    { id:2, title:'Interstellar', year:'2014', status:'demo', genres:['Fantascienza','Avventura'], rating:8.6, overview:'Un gruppo di esploratori affronta un viaggio attraverso un wormhole nello spazio, nel tentativo di garantire la sopravvivenza dell\'umanità.', director:'Christopher Nolan', cast:['Matthew McConaughey','Anne Hathaway','Jessica Chastain'], runtime:169, poster:null, backdrop:null },
+    { id:3, title:'The Dark Knight', year:'2008', status:'demo', genres:['Azione','Crimine'], rating:9.0, overview:'Batman affronta il Joker, un criminale il cui piano è quello di gettare il caos su tutta Gotham City.', director:'Christopher Nolan', cast:['Christian Bale','Heath Ledger','Aaron Eckhart'], runtime:152, poster:null, backdrop:null },
+    { id:4, title:'Parasite', year:'2019', status:'demo', genres:['Thriller','Dramma'], rating:8.5, overview:'L\'intera famiglia disoccupata di Ki-taek si unisce astutamente alla ricca famiglia Park.', director:'Bong Joon-ho', cast:['Song Kang-ho','Lee Sun-kyun','Cho Yeo-jeong'], runtime:132, poster:null, backdrop:null },
+    { id:5, title:'Inception', year:'2010', status:'demo', genres:['Fantascienza','Azione'], rating:8.8, overview:'Un ladro che ruba segreti attraverso la tecnologia dei sogni deve impiantare un\'idea nella mente di un CEO.', director:'Christopher Nolan', cast:['Leonardo DiCaprio','Joseph Gordon-Levitt','Elliot Page'], runtime:148, poster:null, backdrop:null },
+  ];
+}
+
+// ─── API KEY ─────────────────────────────────────────
+function saveApiKey() {
+  const key = document.getElementById('api-key-input').value.trim();
+  if (!key) return alert('Inserisci una API key valida');
+  apiKey = key;
+  localStorage.setItem('tmdb_api_key', key);
+  document.getElementById('api-banner').classList.add('hidden');
+  fetchAllMovieInfo();
+}
+
+// ─── FETCH TMDb ───────────────────────────────────────
+async function fetchAllMovieInfo() {
+  const toFetch = catalog.filter(m => m.status !== 'ok');
+  if (!toFetch.length) return;
+
+  const prog = document.getElementById('fetch-progress');
+  const txt  = document.getElementById('fetch-text');
+  const bar  = document.getElementById('bar-fill');
+  prog.classList.add('show');
+
+  for (let i = 0; i < toFetch.length; i++) {
+    const m = toFetch[i];
+    txt.textContent = `Recupero: "${m.title}" (${i+1}/${toFetch.length})`;
+    bar.style.width = ((i+1)/toFetch.length*100) + '%';
+
+    try {
+      // Cerca il film
+      const q = encodeURIComponent(m.title);
+      const yr = m.year ? `&year=${m.year}` : '';
+      const r = await fetch(`${TMDB_BASE}/search/movie?api_key=${apiKey}&language=it-IT&query=${q}${yr}`);
+      const d = await r.json();
+      
+      if (d.results && d.results.length > 0) {
+        const hit = d.results[0];
+        // Dettagli completi
+        const det = await fetch(`${TMDB_BASE}/movie/${hit.id}?api_key=${apiKey}&language=it-IT&append_to_response=credits`);
+        const info = await det.json();
+
+        const idx = catalog.findIndex(x => x.id === m.id);
+        catalog[idx] = {
+          ...catalog[idx],
+          tmdb_id: hit.id,
+          poster: hit.poster_path ? IMG_BASE + 'w342' + hit.poster_path : null,
+          backdrop: hit.backdrop_path ? IMG_BASE + 'w780' + hit.backdrop_path : null,
+          overview: info.overview || hit.overview,
+          genres: (info.genres || []).map(g => g.name),
+          rating: Math.round(hit.vote_average * 10) / 10,
+          runtime: info.runtime,
+          director: (info.credits?.crew || []).find(c => c.job === 'Director')?.name || null,
+          cast: (info.credits?.cast || []).slice(0, 5).map(c => c.name),
+          year: hit.release_date ? hit.release_date.substring(0,4) : catalog[idx].year,
+          status: 'ok'
+        };
+
+        render();
+        // Salva aggiornato
+        saveLocalCatalog();
+      }
+    } catch(e) {
+      console.warn('Errore TMDb per', m.title, e);
+    }
+
+    // Rate limit gentile
+    await sleep(250);
+  }
+
+  prog.classList.remove('show');
+  buildFilters();
+  render();
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function saveLocalCatalog() {
+  try {
+    localStorage.setItem('movie_catalog_cache', JSON.stringify(catalog));
+  } catch(e) {}
+}
+
+// ─── FILTERS & SORT ──────────────────────────────────
+function buildFilters() {
+  const genres = [...new Set(catalog.flatMap(m => m.genres || []))].sort();
+  const years  = [...new Set(catalog.map(m => m.year).filter(Boolean))].sort((a,b) => b-a);
+
+  const gSel = document.getElementById('filter-genre');
+  gSel.innerHTML = '<option value="">Tutti i generi</option>' +
+    genres.map(g => `<option>${g}</option>`).join('');
+
+  const ySel = document.getElementById('filter-year');
+  ySel.innerHTML = '<option value="">Tutti gli anni</option>' +
+    years.map(y => `<option>${y}</option>`).join('');
+}
+
+function getFiltered() {
+  const q     = document.getElementById('search').value.toLowerCase().trim();
+  const genre = document.getElementById('filter-genre').value;
+  const year  = document.getElementById('filter-year').value;
+  const sort  = document.getElementById('sort-by').value;
+
+  let arr = catalog.filter(m => {
+    if (q && !m.title.toLowerCase().includes(q) &&
+             !(m.overview||'').toLowerCase().includes(q) &&
+             !(m.director||'').toLowerCase().includes(q)) return false;
+    if (genre && !(m.genres||[]).includes(genre)) return false;
+    if (year  && m.year !== year) return false;
+    return true;
+  });
+
+  arr.sort((a,b) => {
+    if (sort === 'title')     return a.title.localeCompare(b.title, 'it');
+    if (sort === 'year-desc') return (b.year||0) - (a.year||0);
+    if (sort === 'year-asc')  return (a.year||0) - (b.year||0);
+    if (sort === 'rating')    return (b.rating||0) - (a.rating||0);
+    return 0;
+  });
+
+  return arr;
+}
+
+// ─── RENDER ──────────────────────────────────────────
+function render() {
+  filtered = getFiltered();
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+
+  document.getElementById('stats').innerHTML =
+    `<strong>${filtered.length}</strong> / ${catalog.length} film`;
+
+  if (!filtered.length) {
+    grid.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  grid.innerHTML = filtered.map((m, i) => `
+    <div class="card" onclick="openModal(${m.id})" style="animation-delay:${Math.min(i,20)*0.03}s">
+      ${m.poster
+        ? `<img class="card-poster" src="${m.poster}" alt="${esc(m.title)}" loading="lazy">`
+        : `<div class="card-poster placeholder">🎬</div>`
+      }
+      <div class="card-body">
+        <div class="card-title">${esc(m.title)}</div>
+        <div class="card-meta">
+          <span class="card-year">${m.year || '—'}</span>
+          <span class="status-dot ${m.status === 'ok' ? 'ok' : m.status === 'error' ? 'error' : 'pending'}"></span>
+          ${m.rating ? `<span class="card-rating">★ ${m.rating}</span>` : ''}
+        </div>
+        ${m.genres?.length ? `<div class="card-genre">${m.genres.slice(0,2).join(' · ')}</div>` : ''}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── MODAL ───────────────────────────────────────────
+function openModal(id) {
+  const m = catalog.find(x => x.id === id);
+  if (!m) return;
+
+  const runtime = m.runtime ? `${Math.floor(m.runtime/60)}h ${m.runtime%60}m` : null;
+
+  document.getElementById('modal-content').innerHTML = `
+    ${m.backdrop
+      ? `<img class="modal-backdrop" src="${m.backdrop}" alt="">`
+      : `<div class="modal-backdrop placeholder">🎬</div>`
+    }
+    <div class="modal-body">
+      ${m.poster
+        ? `<img class="modal-poster" src="${m.poster}" alt="${esc(m.title)}">`
+        : `<div class="modal-poster placeholder">🎬</div>`
+      }
+      <div class="modal-info">
+        <div class="modal-title">${esc(m.title)}</div>
+        <div class="modal-meta">
+          ${m.year ? `<span>${m.year}</span>` : ''}
+          ${runtime ? `<span>⏱ ${runtime}</span>` : ''}
+          ${m.rating ? `<span class="rating-big">★ ${m.rating}<small style="font-size:0.7rem;color:var(--text-dim)">/10</small></span>` : ''}
+          ${(m.genres||[]).map(g => `<span class="badge gold">${g}</span>`).join('')}
+        </div>
+        ${m.overview ? `<p class="modal-overview">${esc(m.overview)}</p>` : ''}
+        <div class="modal-crew">
+          ${m.director ? `<div><div class="crew-label">Regia</div><div class="crew-value">${esc(m.director)}</div></div>` : ''}
+          ${m.cast?.length ? `<div><div class="crew-label">Cast</div><div class="crew-value">${m.cast.map(esc).join(', ')}</div></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeModal(e) {
+  if (e && e.target !== document.getElementById('modal-overlay') && e.type !== 'click') return;
+  if (e && e.currentTarget === document.getElementById('modal') && e.target !== document.getElementById('modal-overlay')) return;
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal({}); });
+// Fix close on overlay click
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal({});
+});
+
+// ─── HELPERS ─────────────────────────────────────────
+function esc(s) {
+  return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── EVENTS ──────────────────────────────────────────
+document.getElementById('search').addEventListener('input', render);
+document.getElementById('filter-genre').addEventListener('change', render);
+document.getElementById('filter-year').addEventListener('change', render);
+document.getElementById('sort-by').addEventListener('change', render);
+
+// Controlla cache locale
+const cached = localStorage.getItem('movie_catalog_cache');
+if (cached) {
+  try {
+    const c = JSON.parse(cached);
+    if (c.length) catalog = c;
+  } catch(e) {}
+}
+
+init();
+</script>
+</body>
+</html>
